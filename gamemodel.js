@@ -1,34 +1,35 @@
 class GameModel {
     constructor(ctx) {
-        this.ctx = ctx
-        this.fallingPiece = null //bloque
+        this.ctx = ctx 
+        this.fallingPiece = null // bloque
         this.grid = this.makeStartingGrid()
     }
 
     makeStartingGrid() {
-        let grid = []
-        for ( var i = 0; i < ROWS; i++) {
-            grid.push()
-            for (var j = 0; i < COLS; j++) {
+        let grid = [] 
+        for (var i = 0; i < ROWS; i++) {
+            grid.push([])
+            for (var j = 0; j < COLS; j++) {
                 grid[grid.length - 1].push(0)
             }
         }
-        return grid
+        return grid 
     }
 
-    collision(y, x) {
-        const shape = this.fallingPiece.shape
-        const n = shape.length
+    collision(x, y, candidate=null) {
+        const shape = candidate || this.fallingPiece.shape 
+        const n = shape.length 
         for (let i = 0; i < n; i++) {
             for (let j = 0; j < n; j++) {
                 if (shape[i][j] > 0) {
-                    let p = x + j
-                    let q = y + i
+                    let p = x + j 
+                    let q = y + i  
                     if (p >= 0 && p < COLS && q < ROWS) {
-                        if(this.grid[q][p] > 0) {
+                        // para evitar que se salga del canvas
+                        if (this.grid[q][p] > 0) {
                             return true
                         }
-                    }else {
+                    } else {
                         return true
                     }
                 }
@@ -36,41 +37,43 @@ class GameModel {
         }
         return false
     }
-    
+
     renderGameState() {
         for (let i = 0; i < this.grid.length; i++) {
-            for ( let j = 0; j < this.grid[i].length; j++) {
-                let cell = this.grid[i][j]
-                this.ctx.fillStyle = COLORS[cell]
+            for (let j = 0; j < this.grid[i].length; j++) {
+                let cell = this.grid[i][j] 
+                this.ctx.fillStyle = COLORS[cell] 
                 this.ctx.fillRect(j, i, 1, 1)
             }
         }
+
         if (this.fallingPiece !== null) {
             this.fallingPiece.renderPiece()
         }
     }
 
-    movingDown() {
+
+    moveDown() {
         if (this.fallingPiece === null) {
-            this.renderGameState()
+            this.renderGameState() 
             return
         } else if (this.collision(this.fallingPiece.x, this.fallingPiece.y + 1)) {
-            const shape = this.fallingPiece.shape
-            const x = this.fallingPiece.x
-            const y = this.fallingPiece.y
+            const shape = this.fallingPiece.shape 
+            const x = this.fallingPiece.x 
+            const y = this.fallingPiece.y 
             shape.map((row, i) => {
                 row.map((cell, j) => {
-                    let p = x + j
-                    let q = y + i
+                    let p = x + j 
+                    let q = y + i 
                     if (p >= 0 && p < COLS && q < ROWS && cell > 0) {
                         this.grid[q][p] = shape[i][j]
                     }
                 })
             })
 
-            //si se pierde el juego
-            if (this.fallingPiece === 0) {
-                alert("Game over!")
+            // fin del juego
+            if (this.fallingPiece.y === 0) {
+                alert("Game over!") 
                 this.grid = this.makeStartingGrid()
             }
             this.fallingPiece = null
@@ -80,21 +83,21 @@ class GameModel {
         this.renderGameState()
     }
 
-
     move(right) {
         if (this.fallingPiece === null) {
             return
         }
-        let x = this.fallingPiece.x
-        let y = this.fallingPiece.y
+
+        let x = this.fallingPiece.x 
+        let y = this.fallingPiece.y 
         if (right) {
-            //mover hacia la derecha
-            if (!this.collision(x + 1,y)) {
+            // mover a la derecha
+            if (!this.collision(x + 1, y)) {
                 this.fallingPiece.x += 1
             }
         } else {
-            //mover hacia la izquierda
-            if(!this.collision(x - 1,y)) {
+            // mover a la izquierda
+            if (!this.collision(x - 1, y)) {
                 this.fallingPiece.x -= 1
             }
         }
@@ -103,17 +106,19 @@ class GameModel {
 
     rotate() {
         if (this.fallingPiece !== null) {
-            let shape = this.fallingPiece.shape
-            //cambiar de posicion los bloques
+            let shape = [...this.fallingPiece.shape.map((row) => [...row])]
+            // cambiar de position
             for (let y = 0; y < shape.length; ++y) {
                 for (let x = 0; x < y; ++x) {
-                    [this.fallingPiece.shape[x][y], this,this.fallingPiece[y][x]] = 
-                    [this.fallingPiece.shape[y][x], this,this.fallingPiece[x][y]] 
+                    [shape[x][y], shape[y][x]] = 
+                    [shape[y][x], shape[x][y]]
                 }
             }
-            
-            //para el otro lado
-            this.fallingPiece.shape.forEach((row => row.reverse()))
+            // posicion invertida 
+            shape.forEach((row => row.reverse()))
+            if (!this.collision(this.fallingPiece.x, this.fallingPiece.y, shape)) {
+                this.fallingPiece.shape = shape
+            }
         }
         this.renderGameState()
     }
