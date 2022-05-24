@@ -2,8 +2,8 @@ class Piece {
     constructor(shape, ctx) {
         this.shape = shape
         this.ctx = ctx
-        this.x = 0
-        this.y = Math.floor(COLS / 2)
+        this.y = 0
+        this.x = Math.floor(COLS / 2)
     }
     renderPiece() {
         this.shape.map((row, i) => {
