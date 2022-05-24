@@ -4,7 +4,7 @@ const ROWS = 20
 const COLS = 10
 const SCORE_WORTH = 10
 
-const SHAPES = [
+const SHAPE = [
     [], [
         [0, 0, 0, 0],
         [1, 1, 1, 1],
