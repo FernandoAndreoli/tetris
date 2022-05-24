@@ -16,7 +16,7 @@ let newGameState = () => {
     fullSend()
     if (model.fallingPiece === null) {
         const rand = Math.round(Math.random() * 6) + 1
-        const newPiece = new Piece(SHAPE[rand], ctx)
+        const newPiece = new Piece(SHAPES[rand], ctx)
         model.fallingPiece = newPiece
         model.moveDown()
     } else {
